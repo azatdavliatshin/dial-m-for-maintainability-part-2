@@ -4,20 +4,367 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+		<title>Dial M for Maintainability</title>
 
 		<link rel="stylesheet" href="dist/reset.css">
 		<link rel="stylesheet" href="dist/reveal.css">
-		<link rel="stylesheet" href="dist/theme/black.css">
+		<link rel="stylesheet" href="dist/theme/night.css">
 
 		<!-- Theme used for syntax highlighted code -->
 		<link rel="stylesheet" href="plugin/highlight/monokai.css">
+
+		<style>
+			.flex {
+				display: flex !important;
+			}
+
+			.two-columns {
+				display: flex !important;
+				gap: 12px;
+			}
+
+			.two-columns > div {
+				flex: 1;
+			}
+		</style>
 	</head>
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
+				<section data-transition="none">
+					<h2>Dial <b style="color:red">M</b> for Maintainability</h2>
+					<p>Part I</p>
+					<aside class="notes">Всем привет, очень рад вас всех видеть здесь! 
+						Сегодня я хочу рассказать вам о Maintainability или Поддерживаемости кода и решений.
+					</aside>
+				</section>
+				<section data-transition="none">
+					<section data-transition="none" data-auto-animate>
+						<h2>Let's get acquainted!</h2>
+					</section>
+					<section data-transition="none" data-auto-animate>
+						<h2>Let's get acquainted!</h2>
+						<aside class="notes">Для начала давайте познакомимся!...
+							(Expertise)...и практически всегда так или иначе работаю с легаси кодом (в основном, нехорошем). 
+							И это одна из причин, почему я в итоге решил посвятить отдельный доклад про Поддерживаемость кода...
+						</aside>
+						<div style="display: flex; gap: calc(var(--r-block-margin) * 2); align-items: center;">
+							<img src="./assets/r.png" alt="" height="300px">
+							<table style="font-size: 30px;">
+								<tbody>
+									<tr>
+										<td style="color: var(--r-link-color);">First Name:</td>
+										<td>Azat</td>
+									</tr>
+									<tr>
+										<td style="color: var(--r-link-color);">Last Name:</td>
+										<td>Davliatshin</td>
+									</tr>
+									<tr>
+										<td style="color: var(--r-link-color);">Experience:</td>
+										<td>9 years in JS development</td>
+									</tr>
+									<tr>
+										<td style="color: var(--r-link-color);">Expertise:</td>
+										<td>FE, BE, Clouds, Mobile, Legacy</td>
+									</tr>
+									<tr>
+										<td style="color: var(--r-link-color);">Criminal Records:</td>
+										<td>Had to force push changes into production branch</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</section>
+				<section data-transition="none">
+					<section data-transition="none" data-auto-animate data-auto-animate-id="two">
+						<h2>Agenda</h2>
+					</section>
+					<section data-transition="none" data-auto-animate data-auto-animate-id="two">
+						<h2>Agenda</h2>
+						<ul>
+							<li>The task definition</li>
+							<li>Straightforward solution: pros and cons</li>
+							<li>Maintainability <- QA <- ASR</li>
+							<li>Maintainability Tactics</li>
+							<li>Design</li>
+							<li>Tools</li>
+						</ul>
+						<aside class="notes">...хотя изначально я просто хотел рассказать об интересном способе решить одну очень простую задачу.</aside>
+						<aside class="notes">
+							В итоге, сегодня мы посмотрим, что за задача такая, обсудим ее "решение в лоб", какие плюсы и минусы у этого решения,
+							плавно перейдем к тому, что же такое Maintainability, заодно зацепив понятие QA и ASR, ознакомимся с основными тактиками для достижения требований
+							по Поддерживаемости кода, как их спроектировать и какие инструменты для обратной связи использовать.
+						</aside>
+					</section>
+				</section>
+				<section data-transition="none">
+					<section data-transition="none">
+						<h2>The task definition</h2>
+						<aside class="notes">
+							Итак, давайте начнем с того, что от нас хочет бизнес
+						</aside>
+					</section>
+					<section data-transition="none">
+						<img src="./assets/diagram.svg" width="85%"/>
+						<aside class="notes">
+							А бизнес хочет автомтизировать процесс анализа данных, полученных при проведении маркетинговых компаний.
+							(Детально) Иными словами, ...
+						</aside>
+					</section>
+					<section data-transition="none">
+						<img src="./assets/Solution Context Diagram (1).svg"/>
+
+						<aside class="notes">
+							Заказчик пользуется AWS инфрой, так что удобно воспользуемся ей.
+							(рассказаать вкратце)
+						</aside>
+					</section>
+				</section>
+				<section data-transition="none">
+					<section data-transition="none">
+						<h2>Straightforward solution</h2>
+						<aside class="notes">
+							Перейдем к реализации (естественно в виде псевдокода)
+						</aside>
+					</section>
+					<section data-transition="none">
+						<pre style="width: 100%; margin: 0;">
+<code data-line-numbers  style="width: 100%;">import { json2csv } from 'json-2-csv';
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+
+const urlAPI = "...";
+const tokenAPI = "...";
+const options = {
+	headers: '' // use tokenAPI
+};
+
+const fetchResponse = await fetch(urlAPI, options);
+const data = fetchResponse.json();
+
+const csv = await converter.json2csv(data);
+
+const client = new S3Client({});
+const command = new PutObjectCommand({});
+await client.send(command);
+							</code></pre>
+					</section>
+					<section data-transition="none">
+						<pre style="width: 100%; margin: 0;">
+<code data-line-numbers="4-8|10-11|13|15-17"  style="width: 100%;">import { json2csv } from 'json-2-csv';
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+
+const urlAPI = "...";
+const tokenAPI = "...";
+const options = {
+	headers: '' // use tokenAPI
+};
+
+const fetchResponse = await fetch(urlAPI, options);
+const data = fetchResponse.json();
+
+const csv = await converter.json2csv(data);
+
+const client = new S3Client({});
+const command = new PutObjectCommand({});
+await client.send(command);
+							</code></pre>
+					</section>
+					<section data-transition="none">
+						<img src="./assets/100.png" style="position: absolute; left: 50%; z-index: 1; transform: translateX(-50%);"/>
+						<pre style="width: 100%; margin: 0;">
+<code data-line-numbers  style="width: 100%; filter: blur(3px);">import { json2csv } from 'json-2-csv';
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+
+const urlAPI = "...";
+const tokenAPI = "...";
+const options = {
+	headers: '' // use tokenAPI
+};
+
+const fetchResponse = await fetch(urlAPI, options);
+const data = fetchResponse.json();
+
+const csv = await converter.json2csv(data);
+
+const client = new S3Client({});
+const command = new PutObjectCommand({});
+await client.send(command);
+							</code></pre>
+					</section>
+					<section data-transition="none" class="two-columns">
+						<aside class="notes">Давайте проанализируем это решение, плюсы и минусы. С плюсами все понятно...
+							Минусы: как вы думаете какие есть? (1 минута) Я выделил вот такие, давайте по порядку поговорим
+						</aside>
+						<div>
+							<h3>PROS</h3>
+							<ul>
+								<li class="fragment fade-in">Quick</li>
+								<li class="fragment fade-in">Simple</li>
+								<li class="fragment fade-in">Plain</li>
+							</ul>
+						</div>
+						<div>
+							<h3>CONS</h3>
+							<ul class="fragment fade-in">
+								<li class="fragment highlight-current-red">Change request is time consuming</li>
+								<li class="fragment highlight-current-red">Similar functionality request</li>
+								<li class="fragment highlight-current-red">Error handling</li>
+							</ul>
+						</div>
+					</section>
+					<section data-transition="none">
+						<aside class="notes">Подытожив, получаем, что наше решение не поддерживаемое. "Но как же так, мы создали его 10 минут назад?"
+							спросите вы. "Мы его продумали, все переменные названы грамотно, все покрыто тестами, читаемо - где код не поддерживаемый?"
+							И вы будете правы с одной стороны, а с другой надо для начала посмотреть на определение.
+						</aside>
+						<h3>Solution is not maintainable</h3>
+					</section>
+				</section>
+				<section>
+					<section data-transition="none">
+						<h2>Maintainability</h2>
+						<aside class="notes">Для того, чтобы полностью понять, что это такое надо сделать 2 шага назад и поговорить для начала...</aside>
+					</section>
+					<section data-transition="none" data-auto-animate data-auto-animate-id="asr">
+						<h3>ASR</h3>
+						<p>Architecturally significant requirements</p>
+						<aside class="notes">...требования, а точнее Архитектурно значимые требования (след слайд)</aside>
+					</section>
+					<section data-transition="none" data-auto-animate data-auto-animate-id="asr">
+						<h3>ASR</h3>
+						<img src="./assets/asr.png" alt="" >
+						<aside class="notes">дать неформальное определение, почему архитектурные</aside>
+					</section>
+					<section data-auto-animate data-auto-animate-id="qa">
+						<h3>QA</h3>
+						<p>Quality attributes</p>
+						<aside class="notes">Давайте поговорим про аттрибуты качества</aside>
+					</section>
+					<section data-auto-animate data-auto-animate-id="qa">
+						<h3>QA</h3>
+						<blockquote>
+							A QUALITY ATTIRBUTE (QA) is a measurable or testable
+property of a system that is used to indicate how well the
+system satisfies the needs of its stakeholders
+						</blockquote>
+						<aside class="notes">
+							аттрибуты качества - это такие свойства системы, которые а) отражают как хорошо система удовл-т требования 
+							и б) можно каким-то образом померить, оценить
+						</aside>
+					</section>
+					<section data-auto-animate data-auto-animate-id="qa">
+						<h3>QA</h3>
+						<ul>
+							<li>Performance</li>
+							<li>Usability</li>
+							<li>Reliability</li>
+							<li>Security</li>
+							<li>Maintainability</li>
+							<li>Availability</li>
+							<li>Scalability</li>
+							<li>...</li>
+						</ul>
+						<aside class="notes">
+							Список аттрибутов качества намного длиннее, зависит от способа классификаций, а также фантазий команды разработчиков
+							Тем не менее, с некоторыми вы так или иначе сталкивались и даже учатсовали в реализации решения для достижения целей по аттрибутам качества.
+						</aside>
+					</section>
+					<section data-auto-animate data-auto-animate-id="Maintainability">
+						<h3>Maintainability</h3>
+						(Modifiability)
+						<aside class="notes">Итак, мы готовы перейти к определению Maintainability, еше называют Modifiability</aside>
+					</section>
+					<section data-auto-animate data-auto-animate-id="Maintainability">
+						<h3>Maintainability</h3>
+						<blockquote>QA deals with change and the cost in time or money of making a change,
+							including the extent to which this modification affects other functions or quality
+							attributes. (SEI)</blockquote>
+						<aside class="notes">
+							Поддерживаемость - это аттрибут качества, который определяет насколько затратно будет внести какие-то изменения, 
+							а также как эти изменения повлияют на решение.
+							Иными словами, решение или код можно назвать хорошо поддерживаемым, если изменения вносятся относительно легко и быстро и без тяжкий последствий
+						</aside>
+					</section>
+				</section>
+				<section>
+					<section data-auto-animate data-auto-animate-id="tactics">
+						<h2>Maintainability Tactics</h2>
+						<aside class="notes">
+							С определением разобрались, давайте теперь перейдем к вопросу, а что делать, чтобы улучшить Поддерживаемость?
+							Для этих целей существует набор тактик или набор решений проектирования, применение которых повлияет на достижение аттрибутов качества.
+						</aside>
+					</section>
+					<section data-auto-animate data-auto-animate-id="tactics">
+						<h2>Maintainability Tactics</h2>
+						<img src="./assets/tactics.png"/>
+						<aside class="notes">
+							Что касается тактик поддерживаемости, то все они направлены ради одной цели: сделать части кода максимально независимыми
+						</aside>
+					</section>
+					<section>
+						<h3>Cohesion & Coupling</h3>
+						<img src="./assets/cohesion&coupling.png"/>
+					</section>
+					<section>
+						<h2>Maintainability Tactics</h2>
+						<img src="./assets/tactics.png"/>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>Design</h2>
+						<aside class="notes">
+							Итак, мы поговорили о том, что такое Поддерживаемость, что делать, чтобы улучшить этот показатель.
+							Теперь поговорим про то, а как это делать? То есть, мы знаем, что надо сплитить код на части и не на обум, а учитывая 
+							сцепление и связность этих модулей. А как это делать, есть ли какие-нибудь практики?
+						</aside>
+					</section>
+					<section class="two-columns">
+						<div><h3>Design Principles</h3></div>
+						<div><h3>*<br/>Patterns</h3></div>
+						<aside class="notes">
+							Есть :) И это те самые вещи, что забываются после прохождения технического интервью:
+							Принципы проектирования, от KISS до SOLID, и всевозможные паттерны, которые помогут вам не только решить какую-то задачу, но и 
+							подсказать, как это реализовать в коде.
+						</aside>
+					</section>
+				</section>
+				<section>
+					<section data-auto-animate data-auto-animate-id="tools">
+						<h2>"Tools"</h2>
+						<aside class="notes">
+							Итак, мы изучили аттрибут качества, узнали как его улучшать, что для этого делать, осталость только понять, как это оценить.
+							И вот тут вопрос: если вопрос как оценить Performance точно не вызывает проблем, то как быть с Поддерживаемостью? 
+							Какие инструменты мы можем использовать, чтобы посмотреть и сказать, что все хорошо или все очень плохо?
+						</aside>
+					</section>
+					<section data-auto-animate data-auto-animate-id="tools">
+						<h2>"Tools"</h2>
+						<ul>
+							<li>Development Guidelines -> Code Review</li>
+							<li class="fragment fade-in">Static code analysis</li>
+							<li class="fragment fade-in">SonarCloud...</li>
+							<li class="fragment fade-in">Tests</li>
+						</ul>
+						<aside class="notes">
+							Для начала, старые добрые стандарты разработки и ручной труд в виде кода ревью (раскрыть).
+							Затем, это различные инструменты для статического анализа кода: linters, prettier и прочее. Сейчас они позволяют отловаить не только табуляцию в 2 или 4 пробела, но и намного сложнее характеристики.
+							Отдельно вынес Sonar, этот инструмент может найти code smells, ненужные дубликаты, усложнения кода и так далее. Даже циклические зависимости. Есть и другие, я уверен, но я с ними не сталкивался.
+							И конечно же тесты: если на написание теста у вас уходят в 10 раз больше времени, чем на написание кода, вполне вероятно, что код сложные и его можно сделать более поддерживаемым.
+						</aside>
+					</section>
+				</section>
+				<section>
+					<h2>Thank you!</h2>
+					<p>To be continued</p>
+					<aside class="notes">
+						Ну что же, надеюсь, было интересно и полезно, на это у меня сегодня все, в следующей части я буду рефакторить решение таким образом, чтобы
+						требуемые изменения не влекли за собой катастрофу вселенского масштаба.
+						Спасибо!
+					</aside>
+				</section>
 			</div>
 		</div>
 
@@ -31,9 +378,10 @@
 			// - https://revealjs.com/config/
 			Reveal.initialize({
 				hash: true,
-
+				transition: 'none',
 				// Learn about plugins: https://revealjs.com/plugins/
-				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ],
+				slideNumber: true
 			});
 		</script>
 	</body>
