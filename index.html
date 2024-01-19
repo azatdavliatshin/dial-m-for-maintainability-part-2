@@ -381,8 +381,13 @@ system satisfies the needs of its stakeholders
 				transition: 'none',
 				// Learn about plugins: https://revealjs.com/plugins/
 				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ],
-				slideNumber: true
-			});
+				slideNumber: 'c/t'
+			}).then(() => {
+				const slideNumbersDOM = document.querySelector('.slide-number');
+				slideNumbersDOM.style.fontSize = '20px';
+				slideNumbersDOM.style.left = '24px';
+				slideNumbersDOM.style.right = 'auto';
+			})
 		</script>
 	</body>
 </html>
