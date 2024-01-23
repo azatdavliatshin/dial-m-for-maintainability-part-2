@@ -440,7 +440,7 @@ await client.send(command);
 					</section>
 				</section>
 				<section id="tools">
-					<section data-auto-animate data-auto-animate-id="tools">
+					<section id="tools-overview">
 						<h2>"Tools"</h2>
 						<aside class="notes">
 							Итак, мы изучили аттрибут качества, узнали как его улучшать, что для этого делать, осталость только понять, как это оценить.
@@ -448,20 +448,26 @@ await client.send(command);
 							Какие инструменты мы можем использовать, чтобы посмотреть и сказать, что все хорошо или все очень плохо?
 						</aside>
 					</section>
-					<section data-auto-animate data-auto-animate-id="tools">
-						<h2>"Tools"</h2>
+					<section id="tools-pr">
+						<h3>Development Guidelines</h3>
+						<h3 class="fragment fade-in">Code Review</h3>
+					</section>
+					<section id="tools-static-code-analysis">
+						<h3>Static code analysis</h3>
 						<ul>
-							<li>Development Guidelines -> Code Review</li>
-							<li class="fragment fade-in">Static code analysis</li>
-							<li class="fragment fade-in">SonarCloud...</li>
-							<li class="fragment fade-in">Tests</li>
+							<li class="fragment fade-in">ESLint</li>
+							<li class="fragment fade-in">Prettier</li>
+							<li class="fragment fade-in">SonarQube</li>
+							<li class="fragment fade-in">...</li>
+							<li class="fragment fade-in">Typescript*</li>
 						</ul>
-						<aside class="notes">
-							Для начала, старые добрые стандарты разработки и ручной труд в виде кода ревью (раскрыть).
-							Затем, это различные инструменты для статического анализа кода: linters, prettier и прочее. Сейчас они позволяют отловаить не только табуляцию в 2 или 4 пробела, но и намного сложнее характеристики.
-							Отдельно вынес Sonar, этот инструмент может найти code smells, ненужные дубликаты, усложнения кода и так далее. Даже циклические зависимости. Есть и другие, я уверен, но я с ними не сталкивался.
-							И конечно же тесты: если на написание теста у вас уходят в 10 раз больше времени, чем на написание кода, вполне вероятно, что код сложные и его можно сделать более поддерживаемым.
-						</aside>
+					</section>
+					<section id="tools-unit-tests"  data-auto-animate  data-auto-animate-id="tests">
+						<h3>Tests</h3>
+					</section>
+					<section id="tools-unit-tests"  data-auto-animate  data-auto-animate-id="tests">
+						<h3>Tests</h3>
+						<img src="./assets/tests.png" width="100%">
 					</section>
 				</section>
 				<section>
