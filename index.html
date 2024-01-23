@@ -308,6 +308,7 @@ catch (exception) {
 					<section data-transition="none" data-auto-animate data-auto-animate-id="asr" id="terms-asr-intro">
 						<h3>ASR</h3>
 						<p>Architecturally significant requirements</p>
+						<a href="https://youtu.be/YA2L4VmHtMc" target="_blank">Click here to watch short video about ASR</a>
 						<aside class="notes">...требования, а точнее Архитектурно значимые требования (след слайд)</aside>
 					</section>
 					<section data-transition="none" data-auto-animate data-auto-animate-id="asr" id="terms-asr">
@@ -334,16 +335,20 @@ system <span class="red">satisfies</span> the needs of its stakeholders
 					</section>
 					<section data-auto-animate data-auto-animate-id="qa" id="terms-qa-list">
 						<h3>QA</h3>
+		
 						<ul>
 							<li class="fragment fade-in">Performance</li>
 							<li class="fragment fade-in">Security</li>
 							<li class="fragment fade-in">Scalability</li>
 							<li class="fragment fade-in">Availability</li>
-							<li class="fragment fade-in">Usability</li>
 							<li class="fragment fade-in">Reliability</li>
+							<li class="fragment fade-in">Usability</li>
 							<li class="fragment fade-in red">Maintainability</li>
 							<li class="fragment fade-in">...</li>
 						</ul>
+						<a style="display: block;" class="fragment fade-in" href="https://iso25000.com/index.php/en/iso-25000-standards/iso-25010" target="_blank">
+							Click here to read ISO standard
+						</a>
 						<aside class="notes">
 							Список аттрибутов качества намного длиннее, зависит от способа классификаций, а также фантазий команды разработчиков
 							Тем не менее, с некоторыми вы так или иначе сталкивались и даже учатсовали в реализации решения для достижения целей по аттрибутам качества.
@@ -358,7 +363,7 @@ system <span class="red">satisfies</span> the needs of its stakeholders
 						<h3>Maintainability</h3>
 						<blockquote>QA deals with <span class="red">change</span> and the <span class="red">cost</span> in time or money <span class="red">of making a change</span>,
 							including the extent to which this modification affects other functions or quality
-							attributes. (SEI)</blockquote>
+							attributes.</blockquote>
 						<aside class="notes">
 							Поддерживаемость - это аттрибут качества, который определяет насколько затратно будет внести какие-то изменения, 
 							а также как эти изменения повлияют на решение.
@@ -377,6 +382,9 @@ system <span class="red">satisfies</span> the needs of its stakeholders
 					<section data-auto-animate data-auto-animate-id="tactics" id="tactics-overview">
 						<h2>Maintainability Tactics</h2>
 						<img src="./assets/tactics.png"/>
+						<a style="font-size: 30px; display: block;" href="https://www.amazon.com/Software-Architecture-Practice-SEI-Engineering/dp/0136886094" target="_blank">
+							Software Architecture in Practice (SEI Series in Software Engineering)
+						</a>
 						<aside class="notes">
 							Что касается тактик поддерживаемости, то все они направлены ради одной цели: сделать части кода максимально независимыми
 						</aside>
@@ -407,6 +415,7 @@ await client.send(command);
 					<section id="tactics-cohesion-coupling">
 						<h3>Cohesion & Coupling</h3>
 						<img src="./assets/cohesion&coupling.png"/>
+						<a>Прочитать статью на хабре</a>
 					</section>
 				</section>
 				<section id="design">
@@ -450,7 +459,13 @@ await client.send(command);
 					</section>
 					<section id="tools-pr">
 						<h3>Development Guidelines</h3>
-						<h3 class="fragment fade-in">Code Review</h3>
+						<div class="fragment fade-in">
+							<h3>Code Review</h3>
+							<a style="display: block;" href="https://doka.guide/tools/code-review/" target="_blank">Что такое Code Review (Дока)</a>
+							<a style="display: block;" href="https://youtu.be/7HwtjZ3t0H8?si=qQDvOv3j3kgdiMpa" target="_blank">
+								Код-ревью с уважением — Ангелина Купцова — SPB Frontend
+							</a>
+						</div>
 					</section>
 					<section id="tools-static-code-analysis">
 						<h3>Static code analysis</h3>
@@ -470,9 +485,15 @@ await client.send(command);
 						<img src="./assets/tests.png" width="100%">
 					</section>
 				</section>
-				<section>
+				<section id="what-to-read">
+					<a href="https://insights.sei.cmu.edu/documents/1288/2020_005_001_650490.pdf" target="_blank">
+						Click here to get article on the Maintainability topic from SEI
+					</a>
+				</section>
+				<section id="this-is-the-end">
 					<h2>Thank you!</h2>
 					<p>To be continued</p>
+					<p>Telegram: @adavliatshin</p>
 					<aside class="notes">
 						Ну что же, надеюсь, было интересно и полезно, на это у меня сегодня все, в следующей части я буду рефакторить решение таким образом, чтобы
 						требуемые изменения не влекли за собой катастрофу вселенского масштаба.
