@@ -288,7 +288,7 @@ const csv = await converter.json2csv(data);
 						</pre>
 					</section>
 					<section id="straightforward-solution-cons-dry">
-						<h4>Code dublication</h4>
+						<h4>Code duplication</h4>
 						<p>Additional functionality request: launch task manually from <span class="red">UI</span>, there are options for <span class="red">storages</span></p>
 					</section>
 					<section id="straightforward-solution-cons-errors">
@@ -420,11 +420,11 @@ system <span class="red">satisfies</span> the needs of its stakeholders
 						</aside>
 						<h4 style="margin-bottom: 50px;">Defer Binding</h4>
 						<pre style="width: 100%; margin: 0;">
-							<code data-line-numbers  style="width: 100%; transform: scale(1.3);">//no magic values!
+							<code data-line-numbers  style="width: 100%; transform: scale(1.3);">//no magic values! ❌ 🧙 🔤
 const urlAPI = "...";
 const tokenAPI = "...";
 
-// much better :)
+// much better :) ✅ 
 const urlAPI = process.env.managementToolApiUrl;
 const tokenAPI = process.env.token;</code></pre>
 					</section>
@@ -462,7 +462,7 @@ await client.send(command);
 						</aside>
 						<h3>Cohesion & Coupling</h3>
 						<img src="./assets/cohesion&coupling.png"/>
-						<a>Прочитать статью на хабре</a>
+						<a href="https://enterprisecraftsmanship.com/posts/cohesion-coupling-difference/" target="_blank" style="display: block;">Click here to read of Cohesion & Coupling</a>
 					</section>
 				</section>
 				<section id="design">
