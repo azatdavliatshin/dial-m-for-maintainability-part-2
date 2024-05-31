@@ -32,7 +32,8 @@
 			}
 
 			.highlight-red-border {
-				border: 4px solid #ff2c2d;
+				border: 8px solid #ff2c2d;
+				box-shadow: #ff2c2d 0px 20px 30px -10px;
 			}
 
 			.cron::before {
@@ -138,7 +139,7 @@
 							<li class="fragment fade-in">Refactoring goals</li>
 							<li class="fragment fade-in">Design, Refactoring, Analysis...</li>
 							<li class="fragment fade-in">Conclusion</li>
-							<li class="fragment fade-in">What's next?</li>
+							<li class="fragment fade-in">P.S.</li>
 						</ul>
 					</section>
 					<section>
@@ -179,30 +180,9 @@
 						<img src="./assets/Solution Context Diagram (1).svg" style="transform: scale(1.3);"/>
 						<div class="absolute highlight-red-border" style="top: 328px; bottom: 53px; left: 350px; right: 481px"></div>
 					</section>
-					<section id="follow-up-straightforward-solution-overview" style="transform: scale(1.3);">
-						<pre style="width: 100%; margin: 0;">
-<code data-line-numbers  style="width: 100%;">import { json2csv } from 'json-2-csv';
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-
-const urlAPI = "...";
-const tokenAPI = "...";
-const options = {
-	headers: '' // use tokenAPI
-};
-
-const fetchResponse = await fetch(urlAPI, options);
-const data = fetchResponse.json();
-
-const csv = await converter.json2csv(data);
-
-const client = new S3Client({});
-const command = new PutObjectCommand({});
-await client.send(command);
-							</code></pre>
-					</section>
 					<section style="transform: scale(1.3);" id="straightforward-solution-analysis">
 						<pre style="width: 100%; margin: 0;">
-<code data-line-numbers="4-8|10-11|13|15-17"  style="width: 100%;">import { json2csv } from 'json-2-csv';
+<code data-line-numbers="|4-8|10-11|13|15-17"  style="width: 100%;">import { json2csv } from 'json-2-csv';
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 const urlAPI = "...";
@@ -245,6 +225,7 @@ await client.send(command);
 						<div>
 							<h3>Design Principles</h3>
 							<ul>
+								<li>GRASP</li>
 								<li>SOLID</li>
 								<li>IoC</li>
 							</ul>
@@ -253,9 +234,12 @@ await client.send(command);
 							<h3>Patterns, Techniques</h3>
 							<ul>
 								<li>DI</li>
+								<li>Low Coupling</li>
+								<li>High Cohesion</li>
 							</ul>
 						</div>
-						<img src="./assets/solid.png" style="position: fixed; left: 400px; top: 370px;" height="100px" alt="">
+						<img src="./assets/solid.png" style="position: fixed; left: 350px; top: 370px;" height="100px" alt="">
+						<img src="./assets/qrcode_wiki_grasp.png" style="position: fixed; left: 25px; top: 370px;" height="100px" alt="">
 					</section>
 					<section id="follow-up-complete" style="height: 100%;">
 						<div style="height: 100%; display: flex; align-items: center; justify-content: center;">
@@ -272,7 +256,7 @@ await client.send(command);
 						<ul>
 							<li class="fragment fade-in">Modular structure</li>
 							<ul class="fragment fade-in">
-								<li class="fragment fade-in">SOLID</li>
+								<li class="fragment fade-in">GRASP, SOLID</li>
 								<li class="fragment fade-in">Easy to test (as less as dep-s as possible)</li>
 								<li class="fragment fade-in">Easy to extend/replace/reuse</li>
 								<li class="fragment fade-in">Easy to log, catch errors and debug</li>
@@ -285,7 +269,7 @@ await client.send(command);
 						<ul class="bucket-list">
 							<li class="fragment fade-in">
 								<input type="checkbox" disabled>
-								<label>Split the code (SOLID)</label>
+								<label>Split the code using GRASP and SOLID</label>
 							</li>
 							<li class="fragment fade-in">
 								<input type="checkbox" disabled>
@@ -328,14 +312,20 @@ await client.send(command);
 					<section>
 						<h4>Refactoring</h4>
 					</section>
-						<section id="r-d-r-a-1-refactoring-main" style="height: 100%;">
+					<section id="r-d-r-a-1-refactoring-main" style="height: 100%;">
 							<pre style="width: 100%; margin: 0; height: 90%;">
-	<code data-line-numbers  style="width: 100%; height: 100%;">// index.ts
+	<code data-line-numbers="|2-5,10-12,18-23|6-8,14-16"  style="width: 100%; height: 100%;">// index.ts
+import { 
+	type APIGatewayProxyEvent, 
+	type APIGatewayProxyResult 
+} from 'aws-lambda';
 import { fetchData } from './fetch-data';
 import { transformToCSV } from "./transform-to-csv";
 import { putCSVtoS3 } from "./put-csv-to-s3";
 
-export const handler = async () => {
+export const handler = async (
+	event: APIGatewayProxyEvent
+): Promise&lt;APIGatewayProxyResult&gt; => {
 	try {
 		const data = await fetchData();
 		const csv = await transformToCSV(data);
@@ -343,29 +333,38 @@ export const handler = async () => {
 	
 		return {
 			statusCode: 200,
+			body: JSON.stringify({
+				message: 'Success!'
+			}),
 		};
 	} catch(error) {
 		console.error(JSON.stringify(error, null, 2));
 	
 		return {
 			statusCode: 500,
-			message: error,
+			body: JSON.stringify(error),
 		};
 	}
 };
 								</code></pre>
-						</section>
-						<section id="r-d-r-a-1-refactoring-module" style="height: 90%;">
+					</section>
+					<section id="r-d-r-a-1-refactoring-module" style="height: 90%;">
 							<pre style="width: 100%; margin: 0; height: 100%;">
-	<code data-line-numbers  style="width: 100%; height: 100%;">// put-csv-to-s3.js
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+	<code data-line-numbers  style="width: 100%; height: 100%;">// put-csv-to-s3.ts
+import { 
+	PutObjectCommand, 
+	S3Client, 
+	type PutObjectCommandOutput,
+} from "@aws-sdk/client-s3";
 
 const client = new S3Client({});
 
-export const putCSVtoS3 = async (csv: string) => {
+export const putCSVtoS3 = async (
+	csv: string
+): Promise&lt;PutObjectCommandOutput&gt; => {
 	const command = new PutObjectCommand({
 		Bucket: "test-bucket",
-		Key: "data.csv",
+		Key: `data_${(new Date()).getTime()}.csv`,
 		Body: csv,
 	});
 	
@@ -381,7 +380,7 @@ export const putCSVtoS3 = async (csv: string) => {
 						<ul class="bucket-list">
 							<li>
 								<input type="checkbox" disabled checked>
-								<label>Split the code (SOLID)</label>
+								<label>Split the code using GRASP and SOLID</label>
 							</li>
 							<li>
 								<input type="checkbox" disabled>
@@ -408,14 +407,20 @@ export const putCSVtoS3 = async (csv: string) => {
 					<section>
 						<h4>Refactoring</h4>
 					</section>
-						<section id="r-d-r-a-2-refactoring-main" style="height: 90%;">
-							<pre style="width: 100%; margin: 0; height: 100%;">
-	<code data-line-numbers  style="width: 100%; height: 100%;">// index.ts
+					<section id="r-d-r-a-2-refactoring-main" style="height: 90%;">
+							<pre style="width: 100%; margin: 0; height: 90%;">
+	<code data-line-numbers="|24-34"  style="width: 100%; height: 100%;">// index.ts
+import { 
+	type APIGatewayProxyEvent, 
+	type APIGatewayProxyResult 
+} from 'aws-lambda';
 import { fetchData } from './fetch-data';
 import { transformToCSV } from "./transform-to-csv";
 import { putCSVtoS3 } from "./put-csv-to-s3";
 
-export const handler = async () => {
+export const handler = async (
+	event: APIGatewayProxyEvent
+): Promise&lt;APIGatewayProxyResult&gt; => {
 	try {
 		const data = await fetchData();
 		const csv = await transformToCSV(data);
@@ -423,42 +428,52 @@ export const handler = async () => {
 	
 		return {
 			statusCode: 200,
+			body: JSON.stringify({
+				message: 'Success!'
+			}),
 		};
 	} catch(error) {
 		console.error(JSON.stringify(error, null, 2));
 	
 		return {
 			statusCode: 500,
-			message: error,
+			body: JSON.stringify({
+				message: 'Failure!',
+				...error
+			}),
 		};
 	}
 };
 								</code></pre>
-						</section>
-					<section id="r-d-r-a-2-refactoring" style="height: 90%;">
-						<section id="r-d-r-a-2-refactoring-module" style="height: 100%;">
-							<pre style="width: 100%; margin: 0; height: 100%;">
-	<code data-line-numbers  style="width: 100%; height: 100%;">// put-csv-to-s3.js
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+					</section>
+					<section id="r-d-r-a-2-refactoring-module" style="height: 90%;">
+						<pre style="width: 100%; margin: 0; height: 100%;">
+<code data-line-numbers="|21-24"  style="width: 100%; height: 100%;">// put-csv-to-s3.ts
+import { 
+PutObjectCommand, 
+S3Client, 
+type PutObjectCommandOutput,
+} from "@aws-sdk/client-s3";
 
 const client = new S3Client({});
 
-export const putCSVtoS3 = async (csv: string) => {
+export const putCSVtoS3 = async (
+	csv: string
+): Promise&lt;PutObjectCommandOutput&gt; => {
 	try {
 		const command = new PutObjectCommand({
 			Bucket: "test-bucket",
-			Key: "data.csv",
+			Key: `data_${(new Date()).getTime()}.csv`,
 			Body: csv,
 		});
-		
-		return client.send(command);
+	
+		return await client.send(command);
 	} catch (error) {
 		console.info("Store CSV file to S3 operation is failed");
 		throw error;
 	}
 };
-								</code></pre>
-						</section>
+							</code></pre>
 					</section>
 					<section id="r-d-r-a-2-analysis">
 						<h4>Analysis</h4>
@@ -468,7 +483,7 @@ export const putCSVtoS3 = async (csv: string) => {
 						<ul class="bucket-list">
 							<li>
 								<input type="checkbox" disabled checked>
-								<label>Split the code (SOLID)</label>
+								<label>Split the code using GRASP and SOLID</label>
 							</li>
 							<li>
 								<input type="checkbox" disabled checked>
@@ -484,34 +499,39 @@ export const putCSVtoS3 = async (csv: string) => {
 							</li>
 						</ul>
 					</section>
-						<section id="r-d-r-a-3-design-module" style="height: 90%;">
-							<pre style="width: 100%; margin: 0; height: 100%;">
-	<code data-line-numbers  style="width: 100%; height: 100%;">// put-csv-to-s3.js
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+					<section id="r-d-r-a-2-refactoring-module-analysis" style="height: 90%;">
+						<pre style="width: 100%; margin: 0; height: 100%;">
+<code data-line-numbers="|8-9|16-17|18-19"  style="width: 100%; height: 100%;">// put-csv-to-s3.ts
+import { 
+	PutObjectCommand, 
+	S3Client, 
+	type PutObjectCommandOutput,
+} from "@aws-sdk/client-s3";
 
 // THERE MIGHT BE HARDCODED REGION
 const client = new S3Client({});
 
-export const putCSVtoS3 = async (csv: string) => {
+export const putCSVtoS3 = async (
+	csv: string
+): Promise&lt;PutObjectCommandOutput&gt; => {
 	try {
 		const command = new PutObjectCommand({
 			// HARDCODED!
 			Bucket: "test-bucket",
-			// HARDCODED
-			Key: "data.csv",
+			// HARDCODED!
+			Key: `data_${(new Date()).getTime()}.csv`,
 			Body: csv,
 		});
-		
-		return client.send(command);
+	
+		return await client.send(command);
 	} catch (error) {
-		// TO CONSIDER: CARRY OUT ERROR MESSAGES (OPTIONAL)
 		console.info("Store CSV file to S3 operation is failed");
 		throw error;
 	}
 };
-								</code></pre>
-						</section>
-						<section id="r-d-r-a-3-design-module-envs" style="height: 90%;">
+							</code></pre>
+					</section>
+					<section id="r-d-r-a-3-design-module-envs" style="height: 90%;">
 							<pre style="width: 100%; margin: 0; height: 100%;">
 	<code data-line-numbers  style="width: 100%; height: 100%;">// put-csv-to-s3.js
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
@@ -523,7 +543,7 @@ export const putCSVtoS3 = async (csv: string) => {
 	try {
 		const command = new PutObjectCommand({
 			Bucket: process.env.BUCKET_NAME,
-			Key: process.env.BUCKET_KEY,
+			Key: `${process.env.BUCKET_KEY}_${(new Date()).getTime()}.csv`,
 			Body: csv,
 		});
 		
@@ -535,7 +555,7 @@ export const putCSVtoS3 = async (csv: string) => {
 	}
 };
 								</code></pre>
-						</section>
+					</section>
 				</section>
 				<section id="r-d-r-a-3">
 					<section>
@@ -553,15 +573,21 @@ export const putCSVtoS3 = async (csv: string) => {
 					<section>
 						<h4>Refactoring</h4>
 					</section>
-						<section id="r-d-r-a-3-refactoring-main" style="height: 90%;">
-							<pre style="width: 100%; margin: 0; height: 100%;">
-	<code data-line-numbers style="width: 100%; height: 100%;">// index.ts
+					<section id="r-d-r-a-3-refactoring-main" style="height: 90%;">
+							<pre style="width: 100%; margin: 0; height: 90%;">
+	<code data-line-numbers="|9,15|16-22"  style="width: 100%; height: 100%;">// index.ts
+import { 
+	type APIGatewayProxyEvent, 
+	type APIGatewayProxyResult 
+} from 'aws-lambda';
 import { fetchData } from './fetch-data';
 import { transformToCSV } from "./transform-to-csv";
 import { putCSVtoS3 } from "./put-csv-to-s3";
 import { getConfig } from './get-config';
 
-export const handler = async () => {
+export const handler = async (
+	event: APIGatewayProxyEvent
+): Promise&lt;APIGatewayProxyResult&gt; => {
 	try {
 		const config = await getConfig();
 		const data = await fetchData(config.apiURL, config.apiToken);
@@ -574,54 +600,27 @@ export const handler = async () => {
 	
 		return {
 			statusCode: 200,
+			body: JSON.stringify({
+				message: 'Success!'
+			}),
 		};
 	} catch(error) {
 		console.error(JSON.stringify(error, null, 2));
 	
 		return {
 			statusCode: 500,
-			message: error,
+			body: JSON.stringify({
+				message: 'Failure!',
+				...error
+			}),
 		};
 	}
 };
 								</code></pre>
-						</section>
-						<section id="r-d-r-a-3-refactoring-main-highlight" style="height: 90%;">
+					</section>
+					<section id="r-d-r-a-3-refactoring-module" style="height: 90%;">
 							<pre style="width: 100%; margin: 0; height: 100%;">
-	<code data-line-numbers="9|10-16"  style="width: 100%; height: 100%;">// index.ts
-import { fetchData } from './fetch-data';
-import { transformToCSV } from "./transform-to-csv";
-import { putCSVtoS3 } from "./put-csv-to-s3";
-import { getConfig } from './get-config';
-
-export const handler = async () => {
-	try {
-		const config = await getConfig();
-		const data = await fetchData(config.apiURL, config.apiToken);
-		const csv = await transformToCSV(data, config.separator);
-		const response = await putCSVtoS3(
-			csv, 
-			config.bucketName, 
-			config.bucketKey
-		);
-	
-		return {
-			statusCode: 200,
-		};
-	} catch(error) {
-		console.error(JSON.stringify(error, null, 2));
-	
-		return {
-			statusCode: 500,
-			message: error,
-		};
-	}
-};
-								</code></pre>
-						</section>
-						<section id="r-d-r-a-3-refactoring-module" style="height: 90%;">
-							<pre style="width: 100%; margin: 0; height: 100%;">
-	<code data-line-numbers  style="width: 100%; height: 100%;">// put-csv-to-s3.js
+	<code data-line-numbers="|9-10,13-17"  style="width: 100%; height: 100%;">// put-csv-to-s3.js
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { type Config } from './get-config';
 
@@ -639,7 +638,7 @@ export const putCSVtoS3 = async (
 			Body: csv,
 		});
 		
-		return client.send(command);
+		return await client.send(command);
 	} catch (error) {
 		console.info("Store CSV file to S3 operation is failed");
 		throw error;
@@ -653,22 +652,24 @@ export const putCSVtoS3 = async (
 					<section id="r-d-r-a-3-analysis-bucket-list">
 						<h4>Refactoring goals</h4>
 						<ul class="bucket-list">
-							<li>
-								<input type="checkbox" disabled checked>
-								<label>Split the code (SOLID)</label>
-							</li>
-							<li>
-								<input type="checkbox" disabled checked>
-								<label>Handle errors specifically</label>
-							</li>
-							<li>
-								<input type="checkbox" disabled checked>
-								<label>Defer bindings</label>
-							</li>
-							<li>
-								<input type="checkbox" disabled>
-								<label>Reduce coupling</label>
-							</li>
+							<ul class="bucket-list">
+								<li>
+									<input type="checkbox" disabled checked>
+									<label>Split the code using GRASP and SOLID</label>
+								</li>
+								<li>
+									<input type="checkbox" disabled checked>
+									<label>Handle errors specifically</label>
+								</li>
+								<li>
+									<input type="checkbox" disabled checked>
+									<label>Defer bindings</label>
+								</li>
+								<li>
+									<input type="checkbox" disabled>
+									<label>Reduce coupling</label>
+								</li>
+							</ul>
 						</ul>
 					</section>
 					<section id="r-d-r-a-3-analysis-main-overview" style="height: 90%;">
@@ -704,15 +705,21 @@ export const handler = async () => {
 };
 								</code></pre>
 					</section>
-					<section id="r-d-r-a-3-analysis-main-highlight" style="height: 90%;">
-						<pre style="width: 100%; margin: 0; height: 100%;">
-<code data-line-numbers="2-5|11-12"  style="width: 100%; height: 100%;">// index.ts
+					<section id="r-d-r-a-3-main-overview" style="height: 90%;">
+						<pre style="width: 100%; margin: 0; height: 90%;">
+<code data-line-numbers="|7-8,17-18"  style="width: 100%; height: 100%;">// index.ts
+import { 
+	type APIGatewayProxyEvent, 
+	type APIGatewayProxyResult 
+} from 'aws-lambda';
 import { fetchData } from './fetch-data';
 import { transformToCSV } from "./transform-to-csv";
 import { putCSVtoS3 } from "./put-csv-to-s3";
 import { getConfig } from './get-config';
 
-export const handler = async () => {
+export const handler = async (
+	event: APIGatewayProxyEvent
+): Promise&lt;APIGatewayProxyResult&gt; => {
 	try {
 		const config = await getConfig();
 		const data = await fetchData(config.apiURL, config.apiToken);
@@ -722,16 +729,22 @@ export const handler = async () => {
 			config.bucketName, 
 			config.bucketKey
 		);
-	
+
 		return {
 			statusCode: 200,
+			body: JSON.stringify({
+				message: 'Success!'
+			}),
 		};
 	} catch(error) {
 		console.error(JSON.stringify(error, null, 2));
-	
+
 		return {
 			statusCode: 500,
-			message: error,
+			body: JSON.stringify({
+				message: 'Failure!',
+				...error
+			}),
 		};
 	}
 };
@@ -748,76 +761,143 @@ export const handler = async () => {
 					<section id="r-d-r-a-4-design-config">
 						<img src="./assets/new context.svg"/>
 					</section>
+					<section>
+						<h4>Refactoring</h4>
+					</section>
 					<section id="r-d-r-a-4-refactoring-main-overview" style="height: 90%;">
-						<img src="./assets/qrcode_ts_path.png" alt="" style="position: fixed; top: 40px; right: 250px; z-index: 100; height: 120px;">
-						<pre style="width: 100%; margin: 0; height: 100%;">
-<code data-line-numbers style="width: 100%; height: 100%;">// index.ts
+						<pre style="width: 100%; margin: 0; height: 90%;">
+<code data-line-numbers  style="width: 100%; height: 100%;">// index.ts
+import { 
+	type APIGatewayProxyEvent, 
+	type APIGatewayProxyResult 
+} from 'aws-lambda';
 import * as API from "@api";
 import { convert } from "@converter";
 import { putToStorage } from "@storage";
 import { getConfig } from '@config';
 
-export const handler = async () => {
+export const handler = async (
+	event: APIGatewayProxyEvent
+): Promise&lt;APIGatewayProxyResult&gt; => {
 	try {
 		const config = await getConfig();
 		const data = await API.get(config);
-		const csv = await convert(data, config);
-		const response = await putToStorage(csv, config);
+		const transformedData = await convert(data, config);
+		const response = await putToStorage(transformedData, config);
 
 		return {
 			statusCode: 200,
+			body: JSON.stringify({
+				message: 'Success!'
+			}),
 		};
 	} catch(error) {
 		console.error(JSON.stringify(error, null, 2));
 
 		return {
 			statusCode: 500,
-			message: error,
+			body: JSON.stringify({
+				message: 'Failure!',
+				...error
+			}),
 		};
 	}
 };
 							</code></pre>
-				</section>
-				<section id="r-d-r-a-4-refactoring-main-overview-highlight" style="height: 90%;">
-					<img src="./assets/qrcode_ts_path.png" alt="" style="position: fixed; top: 40px; right: 250px; z-index: 100; height: 120px;">
-					<pre style="width: 100%; margin: 0; height: 100%;">
-<code data-line-numbers="2-5|9-12"  style="width: 100%; height: 100%;">// index.ts
+					</section>
+					<section id="r-d-r-a-4-refactoring-main-overview-module-highlight" style="height: 90%;">
+						<img src="./assets/qrcode_ts_path.png" alt="" style="position: fixed; top: 140px; right: 250px; z-index: 100; height: 120px;">
+						<pre style="width: 100%; margin: 0; height: 90%;">
+<code data-line-numbers="6-9"  style="width: 100%; height: 100%;">// index.ts
+import { 
+	type APIGatewayProxyEvent, 
+	type APIGatewayProxyResult 
+} from 'aws-lambda';
 import * as API from "@api";
 import { convert } from "@converter";
 import { putToStorage } from "@storage";
 import { getConfig } from '@config';
 
-export const handler = async () => {
+export const handler = async (
+	event: APIGatewayProxyEvent
+): Promise&lt;APIGatewayProxyResult&gt; => {
 	try {
 		const config = await getConfig();
 		const data = await API.get(config);
-		const csv = await convert(data, config);
-		const response = await putToStorage(csv, config);
+		const transformedData = await convert(data, config);
+		const response = await putToStorage(transformedData, config);
 
 		return {
 			statusCode: 200,
+			body: JSON.stringify({
+				message: 'Success!'
+			}),
 		};
 	} catch(error) {
 		console.error(JSON.stringify(error, null, 2));
 
 		return {
 			statusCode: 500,
-			message: error,
+			body: JSON.stringify({
+				message: 'Failure!',
+				...error
+			}),
 		};
 	}
 };
-						</code></pre>
-			</section>
-			<section id="r-d-r-a-4-refactoring-storage" style="height: 90%;">
+							</code></pre>
+					</section>
+					<section id="r-d-r-a-4-refactoring-main-overview-usage-highlight" style="height: 90%;">
+						<pre style="width: 100%; margin: 0; height: 90%;">
+<code data-line-numbers="15-18"  style="width: 100%; height: 100%;">// index.ts
+import { 
+	type APIGatewayProxyEvent, 
+	type APIGatewayProxyResult 
+} from 'aws-lambda';
+import * as API from "@api";
+import { convert } from "@converter";
+import { putToStorage } from "@storage";
+import { getConfig } from '@config';
+
+export const handler = async (
+	event: APIGatewayProxyEvent
+): Promise&lt;APIGatewayProxyResult&gt; => {
+	try {
+		const config = await getConfig();
+		const data = await API.get(config);
+		const transformedData = await convert(data, config);
+		const response = await putToStorage(transformedData, config);
+
+		return {
+			statusCode: 200,
+			body: JSON.stringify({
+				message: 'Success!'
+			}),
+		};
+	} catch(error) {
+		console.error(JSON.stringify(error, null, 2));
+
+		return {
+			statusCode: 500,
+			body: JSON.stringify({
+				message: 'Failure!',
+				...error
+			}),
+		};
+	}
+};
+							</code></pre>
+					</section>
+					<section id="r-d-r-a-4-refactoring-storage" style="height: 90%;">
 				<pre style="width: 100%; margin: 0; height: 100%;">
-<code data-line-numbers style="width: 100%; height: 100%;">// @storage/index.ts
+<code data-line-numbers="|2-3|8-12|13" style="width: 100%; height: 100%;">// @storage/index.ts
 import { putObjectToS3 } from './s3-realization';
 //import { somethingElse } from './something-else';
 import { type Config } from '@config';
 
 export const putToStorage = async (data: string, config: Config) => {
 	try {
-		const response = await putObjectToS3(
+		return await putObjectToS3(
 			data, 
 			config.bucketName,
 			config.bucketKey,
@@ -829,52 +909,34 @@ export const putToStorage = async (data: string, config: Config) => {
 	}
 };
 					</code></pre>
-		</section>
-		<section>
-			<h4>Analysis</h4>
-		</section>
-		<section id="r-d-r-a-4-analysis-bucket-list">
-			<h4>Refactoring goals</h4>
-			<ul class="bucket-list">
-				<li>
-					<input type="checkbox" disabled checked>
-					<label>Split the code (SOLID)</label>
-				</li>
-				<li>
-					<input type="checkbox" disabled checked>
-					<label>Handle errors specifically</label>
-				</li>
-				<li>
-					<input type="checkbox" disabled checked>
-					<label>Defer bindings</label>
-				</li>
-				<li>
-					<input type="checkbox" disabled checked>
-					<label>Reduce coupling</label>
-				</li>
-			</ul>
-		</section>
-		<section id="r-d-r-a-4-analysis-storage" style="height: 90%;">
-			<pre style="width: 100%; margin: 0; height: 100%;">
-<code data-line-numbers style="width: 100%; height: 100%;">// @storage/index.ts
-import { putObjectToS3 } from './s3-realization';
-//import { somethingElse } from './something-else';
-import { type Config } from '@config';
-
-export const putToStorage = async (data: string, config: Config) => {
-	try {
-		const response = await putObjectToS3(data, config);
-		// in the case of dynamic changes, use if-else/switch
-	} catch(error) {
-		console.info("Error inside 'putToStorage' function");
-		throw error;
-	}
-};
-				</code></pre>
-	</section>
-	<section id="r-d-r-a-4-analysis-tactics">
-		<img src="./assets/tactics.png" style="transform: scale(1.3);"/>
-	</section>
+					</section>
+					<section>
+						<h4>Analysis</h4>
+					</section>
+					<section id="r-d-r-a-4-analysis-bucket-list">
+						<h4>Refactoring goals</h4>
+						<ul class="bucket-list">
+							<li>
+								<input type="checkbox" disabled checked>
+								<label>Split the code using GRASP and SOLID</label>
+							</li>
+							<li>
+								<input type="checkbox" disabled checked>
+								<label>Handle errors specifically</label>
+							</li>
+							<li>
+								<input type="checkbox" disabled checked>
+								<label>Defer bindings</label>
+							</li>
+							<li>
+								<input type="checkbox" disabled checked>
+								<label>Reduce coupling</label>
+							</li>
+						</ul>
+					</section>
+					<section id="r-d-r-a-4-analysis-tactics">
+						<img src="./assets/tactics.png" style="transform: scale(1.3);"/>
+					</section>
 				</section>
 				<section>
 					<div style="height: 100%; display: flex; align-items: center; justify-content: center;">
@@ -898,7 +960,7 @@ export const putToStorage = async (data: string, config: Config) => {
 					</section>
 					<section id="r-d-r-a-5-terms-di">
 						<h5>DI</h5>
-						<blockquote>Dependency injection is a <span class="red">programming technique</span> that makes a class <span class="red">independent of its dependencies</span>. 
+						<blockquote>Dependency injection is a programming technique that makes a class <span class="red">independent of its dependencies</span>. 
 							It achieves that by <span class="red">decoupling the usage of an object from its creation</span>. 
 							This helps you to follow SOLID's <span class="red">dependency inversion</span> and <span class="red">single responsibility</span> principles.</blockquote>
 					</section>
@@ -906,66 +968,89 @@ export const putToStorage = async (data: string, config: Config) => {
 						<h4>Refactoring</h4>
 					</section>
 					<section id="r-d-r-a-5-main" style="height: 100%;">
-						<img src="./assets/qrcode_inversify.png" alt="" height="120px;" style="position: fixed; top: 90px; right: 100px; z-index: 100;">
 						<pre style="width: 100%; margin: 0; height: 90%;">
 <code data-line-numbers  style="width: 100%; height: 100%;">// index.ts
+import { 
+	type APIGatewayProxyEvent, 
+	type APIGatewayProxyResult 
+} from 'aws-lambda';
 import { createContainer } from './inversify.container';
 import { TOKENS, type IConductorProcessor } from '@infrastructure';
 
-export const handler = async () => {
+export const handler = async (
+	event: APIGatewayProxyEvent,
+): Promise&lt;APIGatewayProxyResult&gt; => {
 	try {
 		// there might be params
 		const container = await createContainer();
-		const conductorProvider = 
+		const conductorProcessor = 
 			container.get&lt;IConductorProcessor&gt;(TOKENS.CONDUCTOR_PROCESSOR);
-		await conductorProvider.processData();
+		await conductorProcessor.processData();
 		
 		return {
 			statusCode: 200,
+			body: JSON.stringify({
+				message: 'Success!'
+			}),
 		};
 	} catch (error) {
 		console.error(JSON.stringify(error, null, 2));
 
 		return {
 			statusCode: 500,
-			error,
-		}
+			body: JSON.stringify({
+				message: 'Failure!',
+				...error
+			}),
+		};
 	}
 };
 							</code></pre>
 					</section>
 					<section id="r-d-r-a-5-main-highlight" style="height: 100%;">
-						<img src="./assets/qrcode_inversify.png" alt="" height="120px;" style="position: fixed; top: 90px; right: 100px; z-index: 100;">
+						<img src="./assets/qrcode_inversify.png" alt="" height="120px;" style="position: fixed; top: 190px; right: 100px; z-index: 100;">
 						<pre style="width: 100%; margin: 0; height: 90%;">
-<code data-line-numbers="2,8"  style="width: 100%; height: 100%;">// index.ts
+<code data-line-numbers="6,14"  style="width: 100%; height: 100%;">// index.ts
+import { 
+	type APIGatewayProxyEvent, 
+	type APIGatewayProxyResult 
+} from 'aws-lambda';
 import { createContainer } from './inversify.container';
 import { TOKENS, type IConductorProcessor } from '@infrastructure';
 
-export const handler = async () => {
+export const handler = async (
+	event: APIGatewayProxyEvent,
+): Promise&lt;APIGatewayProxyResult&gt; => {
 	try {
 		// there might be params
 		const container = await createContainer();
-		const conductorProvider = 
+		const conductorProcessor = 
 			container.get&lt;IConductorProcessor&gt;(TOKENS.CONDUCTOR_PROCESSOR);
-		await conductorProvider.processData();
+		await conductorProcessor.processData();
 		
 		return {
 			statusCode: 200,
+			body: JSON.stringify({
+				message: 'Success!'
+			}),
 		};
 	} catch (error) {
 		console.error(JSON.stringify(error, null, 2));
 
 		return {
 			statusCode: 500,
-			error,
-		}
+			body: JSON.stringify({
+				message: 'Failure!',
+				...error
+			}),
+		};
 	}
 };
 							</code></pre>
 					</section>
 					<section id="r-d-r-a-5-container" style="height: 100%;">
 						<pre style="width: 100%; margin: 0; height: 90%;">
-<code data-line-numbers style="width: 100%; height: 100%;">// inversify.config.ts
+<code data-line-numbers="|5-13|14-20" style="width: 100%; height: 100%;">// inversify.config.ts
 import "reflect-metadata";
 import { Container } from "inversify";
 	
@@ -1013,10 +1098,60 @@ export const createContainer = (): Container => {
 };	
 							</code></pre>
 					</section>
-					<section id="r-d-r-a-5-container" style="height: 100%;">
+					<section id="r-d-r-a-5-container-creation" style="height: 100%;">
 						<img src="./assets/qrcode_refactoring_guru.png" height="100px" style="position: absolute; z-index: 1000; top: 150px; right: 130px;" alt="">
 						<pre style="width: 100%; margin: 0; height: 90%;">
-<code data-line-numbers="23|26-28|32-43" style="width: 100%; height: 100%;">// inversify.config.ts
+<code data-line-numbers="23" style="width: 100%; height: 100%;">// inversify.config.ts
+import "reflect-metadata";
+import { Container } from "inversify";
+	
+import {
+  TOKENS,
+  getConfig,
+  type IConductorProcessor,
+  type IConfigProvider,
+  type IAPIProvider,
+  type IConverterProvider,
+  type IStorageProvider,
+} from "@infrastructure";
+import { ConductorProcessor } from "@processors";
+import { 
+	ConfigProvider,
+	APIProvider, 
+	ConverterProvider, 
+	StorageProvider 
+} from "@providers";
+
+export const createContainer = (): Container => {
+	const container = new Container({ defaultScope: "Singleton" });
+	
+	// processors
+	container
+		.bind&lt;IConductorProcessor&gt;(TOKENS.CONDUCTOR)
+		.to(ConductorProcessor);
+	
+	const config = await getConfig();
+	// providers
+	container
+		.bind&lt;IConfigProvider&gt;(TOKENS.CONFIG)
+		.toValue(config);
+	container
+		.bind&lt;IAPIProvider&gt;(TOKENS.API)
+		.to(APIProvider);
+	container
+		.bind&lt;IConverterProvider&gt;(TOKENS.CONVERTER)
+		.to(ConverterProvider);
+	container
+		.bind&lt;IStorageProvider&gt;(TOKENS.STORAGE)
+		.to(StorageProvider);
+
+  return container;
+};	
+							</code></pre>
+					</section>
+					<section id="r-d-r-a-5-container-binding" style="height: 100%;">
+						<pre style="width: 100%; margin: 0; height: 90%;">
+<code data-line-numbers="26-28|32-43" style="width: 100%; height: 100%;">// inversify.config.ts
 import "reflect-metadata";
 import { Container } from "inversify";
 	
@@ -1066,35 +1201,6 @@ export const createContainer = (): Container => {
 					</section>
 					<section id="r-d-r-a-5-processor" style="height: 100%;">
 						<pre style="width: 100%; margin: 0; height: 90%;">
-<code data-line-numbers style="width: 100%; height: 100%;">// @processors&sol;conductorProcessor.ts
-import { inject, injectable } from "inversify";
-
-@injectable()
-export class ConductorProcessor implements IConductorProcessor {
-	constructor(
-		@inject(TOKENS.API)
-		private readonly _apiProvider: IAPIProvider,
-		@inject(TOKENS.CONVERTER)
-		private readonly _converterProvider: IConverterProvider,
-		@inject(TOKENS.STORAGE)
-		private readonly _storageProvider: IStorageProvider,
-	) {}
-
-	public async processData(): Promise&lt;void&gt; {
-		try {
-			const data = await this._apiProvider.getData();
-			const csv = await this.__converterProvider.convertData(data);
-			await this._storageProvider(csv);
-		} catch(error) {
-			console.info("[ConductorProcessor][processData] error");
-			throw error;
-		}
-	}
-}
-							</code></pre>
-					</section>
-					<section id="r-d-r-a-5-processor-highlight" style="height: 100%;">
-						<pre style="width: 100%; margin: 0; height: 90%;">
 <code data-line-numbers="5|7-12|15-23" style="width: 100%; height: 100%;">// @processors&sol;conductorProcessor.ts
 import { inject, injectable } from "inversify";
 
@@ -1112,7 +1218,7 @@ export class ConductorProcessor implements IConductorProcessor {
 	public async processData(): Promise&lt;void&gt; {
 		try {
 			const data = await this._apiProvider.getData();
-			const csv = await this.__converterProvider.convertData(data);
+			const csv = await this._converterProvider.convertData(data);
 			await this._storageProvider(csv);
 		} catch(error) {
 			console.info("[ConductorProcessor][processData] error");
@@ -1123,30 +1229,41 @@ export class ConductorProcessor implements IConductorProcessor {
 							</code></pre>
 					</section>
 					<section id="r-d-r-a-5-main-highlight-processor" style="height: 100%;">
-						<img src="./assets/qrcode_inversify.png" alt="" height="120px;" style="position: fixed; top: 90px; right: 100px; z-index: 100;">
 						<pre style="width: 100%; margin: 0; height: 90%;">
-<code data-line-numbers="9-11"  style="width: 100%; height: 100%;">// index.ts
+<code data-line-numbers="15-17"  style="width: 100%; height: 100%;">// index.ts
+import { 
+	type APIGatewayProxyEvent, 
+	type APIGatewayProxyResult 
+} from 'aws-lambda';
 import { createContainer } from './inversify.container';
 import { TOKENS, type IConductorProcessor } from '@infrastructure';
 
-export const handler = async () => {
+export const handler = async (
+	event: APIGatewayProxyEvent,
+): Promise&lt;APIGatewayProxyResult&gt; => {
 	try {
 		// there might be params
 		const container = await createContainer();
-		const conductorProvider = 
+		const conductorProcessor = 
 			container.get&lt;IConductorProcessor&gt;(TOKENS.CONDUCTOR_PROCESSOR);
-		await conductorProvider.processData();
+		await conductorProcessor.processData();
 		
 		return {
 			statusCode: 200,
+			body: JSON.stringify({
+				message: 'Success!'
+			}),
 		};
 	} catch (error) {
 		console.error(JSON.stringify(error, null, 2));
 
 		return {
 			statusCode: 500,
-			error,
-		}
+			body: JSON.stringify({
+				message: 'Failure!',
+				...error
+			}),
+		};
 	}
 };
 							</code></pre>
@@ -1159,7 +1276,7 @@ export const handler = async () => {
 						<ul class="bucket-list">
 							<li>
 								<input type="checkbox" disabled checked>
-								<label>Split the code (SOLID)</label>
+								<label>Split the code using GRASP and SOLID</label>
 							</li>
 							<li>
 								<input type="checkbox" disabled checked>
@@ -1232,6 +1349,16 @@ export const createContainer = (): Container => {
 					</section>
 					<section>
 						<div style="height: 100%; display: flex; align-items: center; justify-content: center;">
+							<img src="./assets/run4.png" alt="">
+						</div>
+					</section>
+					<section>
+						<div style="height: 100%; display: flex; align-items: center; justify-content: center;">
+							<img src="./assets/run5.png" alt="">
+						</div>
+					</section>
+					<section>
+						<div style="height: 100%; display: flex; align-items: center; justify-content: center;">
 							<img width="100%" src="./assets/images.jpg"/>
 							<img style="position: fixed; top: 150px; right: 0px;z-index: 1000;" width=400px" src="./assets/run5.png" alt="">
 							<img style="position: fixed; top: 150px; left: 0px;z-index: 1000;" width="400px" src="./assets/run4.png" alt="">
@@ -1239,6 +1366,7 @@ export const createContainer = (): Container => {
 					</section>
 					<section>
 						<img src="./assets/tom.jpg" alt="">
+						<img class="fragment fade-in" src="./assets/fuck.png" style="position: fixed; bottom: 50px; left: -100px; z-index: 1000;" alt="">
 					</section>
 				</section>
 				<section>
@@ -1260,15 +1388,25 @@ export const createContainer = (): Container => {
 				</section>
 				<section id="what's-next">
 					<section data-auto-animate data-auto-animate-id="next">
-						<h2>What's next?</h2>
+						<h2>P.S.</h2>
 					</section>
 					<section data-auto-animate data-auto-animate-id="next">
-						<h2>What's next?</h2>
+						<h2>P.S.</h2>
 						<ul>
 							<li class="fragment fade-in">Communities</li>
-							<li class="fragment fade-in">Open Source Solutions</li>
 							<li class="fragment fade-in">Research and Development</li>
+							<li class="fragment fade-in">Open Source Solutions</li>
 						</ul>
+						<p class="fragment fade-in">
+							<a href="https://holyjs.ru/en/talks/861c4a4cb7874a9d9c489f02b1ee2638/?referer=%2Fpersons%2Fac5da85a8d364088bb29bc03a1fd93c9%2F%3Fversion%3D2024%2BSpring" target="_blank">
+								Talk from Aleksandr Kanunnikov on HolyJS 
+							</a>
+						</p>
+						<p class="fragment fade-in">
+							<a href="https://github.com/lifeart/glimmer-next" target="_blank">
+								GXT
+							</a>
+						</p>
 					</section>
 				</section>
 				<section id="contacts">
@@ -1308,7 +1446,7 @@ export const createContainer = (): Container => {
 				transition: 'none',
 				// Learn about plugins: https://revealjs.com/plugins/
 				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ],
-				slideNumber: 'c/t'
+				slideNumber: 'c/t',
 			}).then(() => {
 				const slideNumbersDOM = document.querySelector('.slide-number');
 				slideNumbersDOM.style.fontSize = '20px';
