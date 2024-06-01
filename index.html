@@ -533,7 +533,7 @@ export const putCSVtoS3 = async (
 					</section>
 					<section id="r-d-r-a-3-design-module-envs" style="height: 90%;">
 							<pre style="width: 100%; margin: 0; height: 100%;">
-	<code data-line-numbers  style="width: 100%; height: 100%;">// put-csv-to-s3.js
+	<code data-line-numbers  style="width: 100%; height: 100%;">// put-csv-to-s3.ts
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 // THERE MIGHT BE HARDCODED REGION
@@ -620,7 +620,7 @@ export const handler = async (
 					</section>
 					<section id="r-d-r-a-3-refactoring-module" style="height: 90%;">
 							<pre style="width: 100%; margin: 0; height: 100%;">
-	<code data-line-numbers="|9-10,13-17"  style="width: 100%; height: 100%;">// put-csv-to-s3.js
+	<code data-line-numbers="|9-10,13-17"  style="width: 100%; height: 100%;">// put-csv-to-s3.ts
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { type Config } from './get-config';
 
@@ -671,39 +671,6 @@ export const putCSVtoS3 = async (
 								</li>
 							</ul>
 						</ul>
-					</section>
-					<section id="r-d-r-a-3-analysis-main-overview" style="height: 90%;">
-							<pre style="width: 100%; margin: 0; height: 100%;">
-	<code data-line-numbers  style="width: 100%; height: 100%;">// index.ts
-import { fetchData } from './fetch-data';
-import { transformToCSV } from "./transform-to-csv";
-import { putCSVtoS3 } from "./put-csv-to-s3";
-import { getConfig } from './get-config';
-
-export const handler = async () => {
-	try {
-		const config = await getConfig();
-		const data = await fetchData(config.apiURL, config.apiToken);
-		const csv = await transformToCSV(data, config.separator);
-		const response = await putCSVtoS3(
-			csv, 
-			config.bucketName, 
-			config.bucketKey
-		);
-	
-		return {
-			statusCode: 200,
-		};
-	} catch(error) {
-		console.error(JSON.stringify(error, null, 2));
-	
-		return {
-			statusCode: 500,
-			message: error,
-		};
-	}
-};
-								</code></pre>
 					</section>
 					<section id="r-d-r-a-3-main-overview" style="height: 90%;">
 						<pre style="width: 100%; margin: 0; height: 90%;">
@@ -1348,12 +1315,14 @@ export const createContainer = (): Container => {
 						<img src="./assets/8rqnmt.jpg" alt="">
 					</section>
 					<section>
-						<div style="height: 100%; display: flex; align-items: center; justify-content: center;">
+						<div style="height: 100%;">
+							<h4>Run #4</h4>
 							<img src="./assets/run4.png" alt="">
 						</div>
 					</section>
 					<section>
-						<div style="height: 100%; display: flex; align-items: center; justify-content: center;">
+						<div style="height: 100%;">
+							<h4>Run #5</h4>
 							<img src="./assets/run5.png" alt="">
 						</div>
 					</section>
